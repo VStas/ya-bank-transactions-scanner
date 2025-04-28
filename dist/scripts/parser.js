@@ -14,7 +14,22 @@ function findTransactions() {
         let thisNode = transationNodes.iterateNext();
       
         while (thisNode) {
-          console.log(thisNode.textContent);
+          const operationDiv = thisNode.querySelector('[class*="operationName"]');
+          const operationDescriptionDiv = thisNode.querySelector('[class*="operationDescription"]');
+          const operationBalanceChangeDiv = thisNode.querySelector('[class*="balanceChange"]');
+          if (operationDiv) {
+            console.log({
+              operation: operationDiv.textContent,
+              description: operationDescriptionDiv.textContent,
+              balanceChange: operationBalanceChangeDiv.textContent
+            })
+
+            console.log();
+          } else {
+            console.log('no info')
+          }
+
+          // console.log(thisNode.textContent);
           thisNode = transationNodes.iterateNext();
         }
       } catch (e) {
