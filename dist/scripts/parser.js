@@ -1,6 +1,10 @@
 alert('hi')
 console.log('hello hello hello')
 
+function findRowById(id) {
+  return document.querySelector(`div[data-index="${id}"]`)
+}
+
 function findTransactions() {
     const transationNodes = document.evaluate(
         '//div[contains(@class, \'operationInfoWrapper\')]',
