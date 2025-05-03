@@ -33,3 +33,30 @@ chrome.action.onClicked.addListener(async (tab) => {
     //   });
     // }
 });
+
+// В background.js
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log('request');
+    console.log(request);
+    if (request.action === "downloadCSV") {
+      const csvContent = request.data.map(row => 
+        row.map(item => `"${String(item).replace(/"/g, '""')}"`).join(',')
+      ).join('\n');
+
+          // 2. Используем chrome.downloads API без createObjectURL
+      chrome.downloads.download({
+        url: 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent),
+        filename: request.filename,
+        saveAs: true
+      });
+      
+    //   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    //   const url = URL.createObjectURL(blob);
+      
+    //   chrome.downloads.download({
+    //     url: url,
+    //     filename: request.filename,
+    //     saveAs: true
+    //   }, () => URL.revokeObjectURL(url));
+    }
+  });

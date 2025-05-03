@@ -3,7 +3,7 @@
     "description": "Chrome extension for scanning YaBank transactions and exporting to CSV",
     "version": "1.0",
     "manifest_version": 3,
-    "permissions": ["activeTab", "scripting"],
+    "permissions": ["activeTab", "scripting", "downloads"],
     "action": {
 
     },
