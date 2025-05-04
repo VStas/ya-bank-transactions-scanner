@@ -1,6 +1,75 @@
 // alert('hi')
 // console.log('hello hello hello')
 
+function mapPersonalCatergoryAndDescription({
+  date,
+  operation,
+  description,
+  balanceChange,
+  currency,
+}) {
+  if (description === 'Общественный транспорт' && operation === 'Московский транспорт') {
+    return {category: 'Метро'};
+  }
+  if (operation === 'Такси') {
+    return {category: 'Такси'};
+  }
+  if (description === 'Фастфуд' || description === 'Рестораны и кафе') {
+    return {category: 'Рестораны, кофе'};
+  }
+  if (description === 'Спорт') {
+    return {category: 'Тренировки'};
+  }
+  if (description === 'Супермаркеты') {
+    if (operation.startsWith('VV_')) {
+      return {category: 'Продукты', comment: 'Вкусвилл'};
+    }
+    return {category: 'Продукты'};
+  }
+  if (description === 'Перевод между счетами' || description === 'Автопополнение') {
+    return {category: 'Переводы'};
+  }
+  if (description === 'Перевод') {
+    return {category: 'Переводы'}
+  }
+  if (description === 'Мобильная связь' && operation === 'SBP hosting nuxt cloud') {
+    return {category: 'Регулярные платежи', comment: 'NuxtCloud. Оплата за VPN'}
+  }
+
+  if (description === 'Телеком' && operation.includes('PAY.MTS.RU')) {
+    return {category: 'Регулярные платежи', comment: 'МТС. Интернет'}
+  }
+
+  if (operation === 'domovenokbs') {
+    return {category: 'Клининг', comment: 'Домовенок'}
+  }
+
+  if (description === 'Парковка') {
+    return {category: 'Автомобиль', comment: `Парковка. ${operation}`}
+  }
+
+  if (operation === 'Выплата процентов') {
+    return {category: 'Доход', comment: 'Выплата процентов на сейф'}
+  }
+
+  // if (description === 'Салоны красоты и СПА') {
+  //   return {category: 'Парикмахерская'}
+  // }
+  return {category: '???'}
+}
+
+function mapToPersonalTableRecord(record) {
+  const {date, balanceChange, operation, description} = record;
+  const {category, comment} = mapPersonalCatergoryAndDescription(record);
+  return [
+    date,
+    category,
+    'Yandex Safe',
+    balanceChange < 0 ? -balanceChange : '',
+    balanceChange >= 0 ? balanceChange : '',
+    comment ?? (description + ' ' + operation) 
+  ];
+}
 
 function parseCustomDate(dateStr) {
   const now = new Date();
@@ -157,7 +226,7 @@ async function scan() {
 
   let row = await waitForRow(state.currentTransactionId, 300, 500);
   // let row = findTransactionRowById(state.currentTransactionId);
-  while (row && state.currentTransactionId < 100) {
+  while (row && state.currentTransactionId < 1000) {
     const info = extractTransactionInfo(row, state);
     if (info) {
       result.push(info);
@@ -186,9 +255,10 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "parsePage") {
       // const data = 'hello'
       const json = await scan();
-      const titles = ['Дата', 'Категория', 'Сумма', 'Описание', 'Валюта'];
-      const table = json.map((element) => [element.date, element.description, element.balanceChange, element.operation, element.currency]);
-      table.unshift(titles);
+      // const titles = ['Дата', 'Категория', 'Сумма', 'Описание', 'Валюта'];
+      // const table = json.map((element) => [element.date, element.description, element.balanceChange, element.operation, element.currency]);
+      const table = json.map(mapToPersonalTableRecord).reverse();
+      // table.unshift(titles);
       downloadCSV(table, 'yabank-transactions.csv')
       sendResponse({data: {success: true}});
     }
