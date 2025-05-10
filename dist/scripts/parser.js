@@ -1,5 +1,3 @@
-// alert('hi')
-// console.log('hello hello hello')
 
 function mapPersonalCatergoryAndDescription({
   date,
@@ -125,7 +123,6 @@ function findTransactionRowById(id) {
 
 function scroll() {
   const scrollContainer = document.querySelector('[class*="PageLayout-module__content__"]');
-  // console.log({scrollContainer})
   scrollContainer.scrollTop = scrollContainer.scrollHeight;
 }
 
@@ -181,9 +178,7 @@ function extractTransactionInfo(node, state) {
   const operationBalanceChangeDiv = node.querySelector('[class*="balanceChange"]');
 
   if (!operationDiv) {
-    // if (node.textContent) {
       state.date = parseCustomDate(node.textContent);
-    // }
     return null;
   }
 
@@ -225,14 +220,11 @@ async function scan() {
   // scroll();
 
   let row = await waitForRow(state.currentTransactionId, 300, 500);
-  // let row = findTransactionRowById(state.currentTransactionId);
   while (row && state.currentTransactionId < 1000) {
     const info = extractTransactionInfo(row, state);
     if (info) {
       result.push(info);
     }
-    // console.log(info);
-    // console.log({id: state.currentTransactionId, info})
 
     state.incrementCurrentTransactionId();
 
@@ -251,9 +243,7 @@ function downloadCSV(data, filename) {
 }
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  // console.log('received a message');
   if (request.action === "parsePage") {
-      // const data = 'hello'
       const json = await scan();
       // const titles = ['Дата', 'Категория', 'Сумма', 'Описание', 'Валюта'];
       // const table = json.map((element) => [element.date, element.description, element.balanceChange, element.operation, element.currency]);
