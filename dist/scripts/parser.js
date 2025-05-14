@@ -62,7 +62,7 @@ function mapToPersonalTableRecord(record) {
   return [
     date,
     category,
-    'Yandex Safe',
+    'Yandex Card',
     balanceChange < 0 ? -balanceChange : '',
     balanceChange >= 0 ? balanceChange : '',
     comment ?? (description + ' ' + operation) 
@@ -121,9 +121,32 @@ function findTransactionRowById(id) {
   return document.querySelector(`div[data-index="${id}"]`)
 }
 
-function scroll() {
+function scroll(rowId) {
   const scrollContainer = document.querySelector('[class*="PageLayout-module__content__"]');
-  scrollContainer.scrollTop = scrollContainer.scrollHeight;
+
+  if (rowId === -1) {
+    scrollContainer.scrollTop = 0;
+
+    return;
+  }
+  const row = findTransactionRowById(rowId);
+
+  if (!row || !scrollContainer) {
+    return;
+  }
+
+  const topPos = row.offsetTop - scrollContainer.offsetTop;
+
+  console.log('scrolling to ' + topPos);
+  // // scrollContainer.scrollTop = scrollContainer.scrollHeight;
+  // scrollContainer.scrollTo({
+  //   top: topPos,
+  //   behavior: 'smooth'
+  // })
+  row.scrollIntoView({
+    behavior: 'instant',  // неплавная прокрутка
+    block: 'start'       // Выравниваем по верхнему краю
+  });
 }
 
 function wait(ms) {
@@ -141,7 +164,7 @@ async function waitForRow(id, timeout, maxTries = 100) {
 
   let tries = 0;
 
-  scroll();
+  scroll(id-1);
 
   while (!node && tries < maxTries) {
     await wait(timeout);
