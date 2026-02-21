@@ -1,6 +1,8 @@
 chrome.action.onClicked.addListener(async (tab) => {
   // alert('click')
   // throw new Error();
+  if (tab.id === undefined) return;
+
   await chrome.action.setBadgeText({
     tabId: tab.id,
     text: "azaza",
@@ -11,9 +13,9 @@ chrome.action.onClicked.addListener(async (tab) => {
 
   // Отправляем сообщение в content script
   console.log("sending message");
-  chrome.tabs.sendMessage(tab.id, { action: "parsePage" }, (response) => {
-    if (response) {
-      console.log("Получены данные:", response.data);
+  chrome.tabs.sendMessage(tab.id, { action: "parsePage" }, (response: unknown) => {
+    if (response && typeof response === "object" && "data" in response) {
+      console.log("Получены данные:", (response as { data: unknown }).data);
       // renderTable(response.data);
     } else {
       console.error(
@@ -37,13 +39,14 @@ chrome.action.onClicked.addListener(async (tab) => {
 });
 
 // В background.js
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
   console.log("request");
   console.log(request);
   if (request.action === "downloadCSV") {
-    const csvContent = request.data
-      .map((row) =>
-        row.map((item) => `"${String(item).replace(/"/g, '""')}"`).join(",")
+    const data = request.data as string[][];
+    const csvContent = data
+      .map((row: string[]) =>
+        row.map((item: string) => `"${String(item).replace(/"/g, '""')}"`).join(",")
       )
       .join("\n");
 

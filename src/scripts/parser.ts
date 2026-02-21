@@ -1,10 +1,20 @@
+interface TransactionRecord {
+  date: string;
+  operation: string;
+  description: string;
+  balanceChange: number;
+  currency: string;
+}
+
+interface CategoryMapping {
+  category: string;
+  comment?: string;
+}
+
 function mapPersonalCatergoryAndDescription({
-  date,
   operation,
   description,
-  balanceChange,
-  currency,
-}) {
+}: Pick<TransactionRecord, "operation" | "description">): CategoryMapping {
   if (
     description === "Общественный транспорт" &&
     operation === "Московский транспорт"
@@ -67,20 +77,22 @@ function mapPersonalCatergoryAndDescription({
   return { category: "???" };
 }
 
-function mapToPersonalTableRecord(record) {
+function mapToPersonalTableRecord(record: TransactionRecord): string[] {
   const { date, balanceChange, operation, description } = record;
   const { category, comment } = mapPersonalCatergoryAndDescription(record);
+  const expense = balanceChange < 0 ? String(-balanceChange) : "";
+  const income = balanceChange >= 0 ? String(balanceChange) : "";
   return [
     date,
     category,
     "Yandex Card",
-    balanceChange < 0 ? -balanceChange : "",
-    balanceChange >= 0 ? balanceChange : "",
+    expense,
+    income,
     comment ?? description + " " + operation,
   ];
 }
 
-function parseCustomDate(dateStr) {
+function parseCustomDate(dateStr: string) {
   const now = new Date();
   const currentYear = now.getFullYear();
 
@@ -115,7 +127,8 @@ function parseCustomDate(dateStr) {
   const parts = dateStr.split(" ");
   if (parts.length >= 2) {
     const day = parseInt(parts[0], 10);
-    const month = months[parts[1]];
+    const monthKey = parts[1];
+    const month = monthKey ? months[monthKey as keyof typeof months] : undefined;
     let year = currentYear;
 
     // Если указан год (например, "8 января 2024")
@@ -123,6 +136,9 @@ function parseCustomDate(dateStr) {
       year = parseInt(parts[2], 10);
     }
 
+    if (month === undefined) {
+      return formatToMDYYYY(now);
+    }
     return `${month}/${day}/${year}`;
   }
 
@@ -130,26 +146,27 @@ function parseCustomDate(dateStr) {
   return formatToMDYYYY(now);
 }
 
-// Вспомогательная функция для форматирования Date в m/d//yyyy
-function formatToMDYYYY(date) {
+// Вспомогательная функция для форматирования Date в m/d/yyyy
+function formatToMDYYYY(date: Date) {
   return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 }
 
-function findTransactionRowById(id) {
+function findTransactionRowById(id: number) {
   return document.querySelector(`div[data-index="${id}"]`);
 }
 
-function scroll(rowId) {
+function scroll(rowId: number) {
   const scrollContainer = document.querySelector(
     '[class*="PageLayout-module__content__"]'
-  );
+  ) as HTMLElement | null;
 
   if (rowId === -1) {
-    scrollContainer.scrollTop = 0;
-
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+    }
     return;
   }
-  const row = findTransactionRowById(rowId);
+  const row = findTransactionRowById(rowId) as HTMLElement | null;
 
   if (!row || !scrollContainer) {
     return;
@@ -169,13 +186,13 @@ function scroll(rowId) {
   });
 }
 
-function wait(ms) {
+function wait(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
 
-async function waitForRow(id, timeout, maxTries = 100) {
+async function waitForRow(id: number, timeout: number, maxTries = 100) {
   console.log("waiting for row " + id);
   let node = findTransactionRowById(id);
   if (node) {
@@ -199,24 +216,23 @@ async function waitForRow(id, timeout, maxTries = 100) {
   return node;
 }
 
-function parseCurrency(str) {
+function parseCurrency(str: string) {
   return str.at(-1) === "₽" ? "RUB" : "BONUS";
 }
 
 const specialSpaceSymbol = " ";
 const specialMinus = "−";
 
-function parseBalanceChange(str) {
+function parseBalanceChange(str: string) {
   return parseFloat(
     str
       .replace(",", ".")
       .replace(specialSpaceSymbol, "")
-      .replace(specialMinus, "-"),
-    10
+      .replace(specialMinus, "-")
   );
 }
 
-function extractTransactionInfo(node, state) {
+function extractTransactionInfo(node: Element, state: State): TransactionRecord | null {
   const operationDiv = node.querySelector('[class*="operationName"]');
   const operationDescriptionDiv = node.querySelector(
     '[class*="operationDescription"]'
@@ -226,35 +242,31 @@ function extractTransactionInfo(node, state) {
   );
 
   if (!operationDiv) {
-    state.date = parseCustomDate(node.textContent);
+    state.date = parseCustomDate(node.textContent ?? "");
+    return null;
+  }
+
+  if (!operationBalanceChangeDiv) {
     return null;
   }
 
   console.log(operationBalanceChangeDiv.textContent);
   return {
-    date: state.date,
-    operation: operationDiv.textContent,
+    date: state.date ?? "",
+    operation: operationDiv.textContent ?? "",
     description: operationDescriptionDiv?.textContent || "",
-    balanceChange: parseBalanceChange(operationBalanceChangeDiv.textContent),
-    currency: parseCurrency(operationBalanceChangeDiv.textContent),
+    balanceChange: parseBalanceChange(operationBalanceChangeDiv.textContent ?? ""),
+    currency: parseCurrency(operationBalanceChangeDiv.textContent ?? ""),
   };
 }
 
 class State {
   currentTransactionId = 0;
-  date = null;
-
-  get currentTransactionId() {
-    return this.currentTransactionId;
-  }
-
-  set date(newDate) {
-    this.date = newDate;
-  }
+  date: string | null = null;
 
   resetState() {
-    currentTransactionId = 0;
-    date = null;
+    this.currentTransactionId = 0;
+    this.date = null;
   }
 
   incrementCurrentTransactionId() {
@@ -282,7 +294,7 @@ async function scan() {
   return result;
 }
 
-function downloadCSV(data, filename) {
+function downloadCSV(data: string[][], filename: string) {
   chrome.runtime.sendMessage({
     action: "downloadCSV",
     data: data,
@@ -290,7 +302,7 @@ function downloadCSV(data, filename) {
   });
 }
 
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (request, _sender, sendResponse) => {
   if (request.action === "parsePage") {
     const json = await scan();
     // const titles = ['Дата', 'Категория', 'Сумма', 'Описание', 'Валюта'];

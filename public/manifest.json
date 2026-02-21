@@ -6,7 +6,7 @@
   "permissions": ["activeTab", "scripting", "downloads"],
   "action": {},
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "scripts/background.js"
   },
   "content_scripts": [
     {
