@@ -1,21 +1,17 @@
 {
-    "name": "YaBank Scanner",
-    "description": "Chrome extension for scanning YaBank transactions and exporting to CSV",
-    "version": "1.0",
-    "manifest_version": 3,
-    "permissions": ["activeTab", "scripting", "downloads"],
-    "action": {
-
-    },
-    "background": {
-        "service_worker": "background.js"
-    },
-    "content_scripts": [
-        {
-          "js": ["scripts/parser.js"],
-          "matches": [
-            "https://bank.yandex.ru/pay/history*"
-          ]
-        }
-      ]
+  "name": "YaBank Scanner",
+  "description": "Chrome extension for scanning YaBank transactions and exporting to CSV",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": ["activeTab", "scripting", "downloads"],
+  "action": {},
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "js": ["scripts/parser.js"],
+      "matches": ["https://bank.yandex.ru/my/history*"]
+    }
+  ]
 }
