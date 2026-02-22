@@ -6,7 +6,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     lib: {
-      entry: resolve(__dirname, 'src/scripts/parser.ts'),
+      entry: resolve(__dirname, 'src/parser.ts'),
       formats: ['iife'],
       name: 'parser',
     },

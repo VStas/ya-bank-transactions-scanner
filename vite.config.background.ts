@@ -6,7 +6,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: false,
     lib: {
-      entry: resolve(__dirname, 'src/scripts/background.ts'),
+      entry: resolve(__dirname, 'src/background.ts'),
       formats: ['iife'],
       name: 'background',
     },
