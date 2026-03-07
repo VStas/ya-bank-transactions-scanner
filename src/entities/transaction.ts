@@ -12,11 +12,6 @@ export interface TransactionRecord {
   currency: string;
 }
 
-/** Returns true if the row is a transaction row (has operation div) */
-// export function isTransactionRow(node: Element): boolean {
-//   return getOperationNameElement(node) !== null;
-// }
-
 const specialSpaceSymbol = "\u00A0"; // Non-breaking space used in YaBank
 const specialMinus = "−";
 
