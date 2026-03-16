@@ -9,6 +9,7 @@ const TRANSACTION_SELECTORS = {
   operationName: '[class*="operationName"]',
   operationDescription: '[class*="operationDescription"]',
   operationBalanceChange: '[class*="balanceChange"]',
+  negativeColor: '[class*="negativeColor"]',
 } as const;
 
 export function findTransactionRowById(id: number): Element | null {
@@ -29,4 +30,8 @@ export function getOperationDescriptionElement(transactionNode: Element): Elemen
 
 export function getBalanceChangeElement(transactionNode: Element): Element | null {
   return transactionNode.querySelector(TRANSACTION_SELECTORS.operationBalanceChange);
+}
+
+export function hasNegativeColorDescendant(transactionNode: Element): boolean {
+  return transactionNode.querySelector(TRANSACTION_SELECTORS.negativeColor) !== null;
 }

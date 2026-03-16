@@ -2,6 +2,7 @@ import {
   getOperationNameElement,
   getOperationDescriptionElement,
   getBalanceChangeElement,
+  hasNegativeColorDescendant,
 } from "../shared/domAccessor";
 
 export interface TransactionRecord {
@@ -41,6 +42,11 @@ export function tryExtractTransactionInfo(
   }
 
   if (!operationBalanceChangeDiv) {
+    return null;
+  }
+
+  // Ignore rows where balance change has a descendant with negativeColor (e.g. negative amount styling)
+  if (hasNegativeColorDescendant(operationBalanceChangeDiv)) {
     return null;
   }
 

@@ -9,6 +9,6 @@ on WSL choose zsh terminal
 - maybe include image name and other available info
 - map to my format as a plugin
 - english language support
-- red transactions support (cancelled)
++ red transactions support (cancelled)
 - Если не распознали месяц, возможно, кинуть ошибку.
 - валюта

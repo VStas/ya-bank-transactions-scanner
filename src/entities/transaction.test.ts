@@ -7,12 +7,14 @@ import {
 const mockGetOperationNameElement = vi.fn();
 const mockGetOperationDescriptionElement = vi.fn();
 const mockGetBalanceChangeElement = vi.fn();
+const mockHasNegativeColorDescendant = vi.fn();
 
 vi.mock("../shared/domAccessor", () => ({
   getOperationNameElement: (node: Element) => mockGetOperationNameElement(node),
   getOperationDescriptionElement: (node: Element) =>
     mockGetOperationDescriptionElement(node),
   getBalanceChangeElement: (node: Element) => mockGetBalanceChangeElement(node),
+  hasNegativeColorDescendant: (container: Element) => mockHasNegativeColorDescendant(container),
 }));
 
 function createMockElement(textContent: string): Element {
@@ -26,6 +28,7 @@ describe("extractTransactionInfo", () => {
     mockGetOperationNameElement.mockClear();
     mockGetOperationDescriptionElement.mockClear();
     mockGetBalanceChangeElement.mockClear();
+    mockHasNegativeColorDescendant.mockReturnValue(false);
   });
 
   it("returns null when operation div is missing", () => {
@@ -37,6 +40,15 @@ describe("extractTransactionInfo", () => {
   it("returns null when balance change div is missing", () => {
     mockGetOperationNameElement.mockReturnValue(createMockElement("Taxi"));
     mockGetBalanceChangeElement.mockReturnValue(null);
+    const result = tryExtractTransactionInfo(mockNode, "1/15/2024");
+    expect(result).toBe(null);
+  });
+
+  it("returns null when balance change has negativeColor descendant", () => {
+    mockGetOperationNameElement.mockReturnValue(createMockElement("Pay"));
+    mockGetOperationDescriptionElement.mockReturnValue(createMockElement(""));
+    mockGetBalanceChangeElement.mockReturnValue(createMockElement("-100 ₽"));
+    mockHasNegativeColorDescendant.mockReturnValue(true);
     const result = tryExtractTransactionInfo(mockNode, "1/15/2024");
     expect(result).toBe(null);
   });
