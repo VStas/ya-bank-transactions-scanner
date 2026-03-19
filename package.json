@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build --config vite.config.parser.ts && vite build --config vite.config.background.ts",
+    "build": "tsc && vite build --config vite.config.parser.ts && vite build --config vite.config.background.ts && vite build --config vite.config.popup.ts",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
