@@ -5,6 +5,8 @@ This Chrome extension extracts YaBank transaction data directly from the web int
 on WSL choose zsh terminal
 
 # todo
+- scan till date
+- date input
 - check double transactions bug
 - small ui to input date and view progress
 - maybe include image name and other available info
