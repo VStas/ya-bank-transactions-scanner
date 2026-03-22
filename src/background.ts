@@ -1,4 +1,4 @@
-import { sendToTab } from "./shared/actions";
+import { onRuntimeMessage, type Action } from "./shared/actions";
 
 chrome.action.onClicked.addListener(async (tab) => {
   if (tab.id === undefined) return;
@@ -7,16 +7,16 @@ chrome.action.onClicked.addListener(async (tab) => {
   // Send message to content script
   console.log("sending message");
   // const response = await chrome.tabs.sendMessage(tab.id, { action: "parsePage" });
-  const response = await sendToTab(tab.id, { action: "parsePage" });
-  console.log("response", response);
+  // const response = await sendToTab(tab.id, { action: "parsePage" });
+  // console.log("response", response);
 });
 
 // In background script
-chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
+onRuntimeMessage((action: Action, _sender, _sendResponse) => {
   console.log("request");
-  console.log(request);
-  if (request.action === "downloadCSV") {
-    const data = request.data as string[][];
+  console.log(action);
+  if (action.action === "downloadCSV") {
+    const {data} = action;
     const csvContent = data
       .map((row: string[]) =>
         row.map((item: string) => `"${String(item).replace(/"/g, '""')}"`).join(",")
@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
     // Use chrome.downloads API without createObjectURL
     chrome.downloads.download({
       url: "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent),
-      filename: request.filename,
+      filename: action.filename,
       saveAs: true,
     });
 

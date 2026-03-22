@@ -1,5 +1,6 @@
 import { type TransactionRecord } from "./entities/transaction";
 import { scan } from "./features/scanner/scanner";
+import { onRuntimeMessage, type Action } from "./shared/actions";
 
 interface CategoryMapping {
   category: string;
@@ -95,7 +96,7 @@ function downloadCSV(data: string[][], filename: string) {
   });
 }
 
-chrome.runtime.onMessage.addListener(async (request, _sender, sendResponse) => {
+onRuntimeMessage(async (request: Action, _sender, sendResponse) => {
   if (request.action === "parsePage") {
     const json = await scan();
     const table = json.map(mapToPersonalTableRecord).reverse();
