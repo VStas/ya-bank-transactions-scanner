@@ -65,7 +65,7 @@ export async function scan(): Promise<TransactionRecord[]> {
   state.resetState();
 
   try {
-    while (state.currentTransactionId < 300) {
+    while (state.currentTransactionId < 500) {
       const row = await scanRowWithId(state.currentTransactionId, 300, 500);
       if (!row) break;
 

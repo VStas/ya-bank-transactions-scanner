@@ -73,6 +73,15 @@ function mapPersonalCatergoryAndDescription({
   return { category: "???" };
 }
 
+const PERSONAL_TABLE_HEADERS_RU: string[] = [
+  "Дата",
+  "Категория",
+  "Счёт",
+  "Расход",
+  "Доход",
+  "Комментарий",
+];
+
 function mapToPersonalTableRecord(record: TransactionRecord): string[] {
   const { date, balanceChange, operation, description } = record;
   const { category, comment } = mapPersonalCatergoryAndDescription(record);
@@ -99,8 +108,11 @@ function downloadCSV(data: string[][], filename: string) {
 onRuntimeMessage(async (request: Action, _sender, sendResponse) => {
   if (request.action === "parsePage") {
     const json = await scan();
-    const table = json.map(mapToPersonalTableRecord).reverse();
-    downloadCSV(table, "yabank-transactions.csv");
+    const rows: string[][] = [PERSONAL_TABLE_HEADERS_RU.slice()];
+    for (let i = json.length - 1; i >= 0; i--) {
+      rows.push(mapToPersonalTableRecord(json[i]));
+    }
+    downloadCSV(rows, "yabank-transactions.csv");
     sendResponse({ data: { success: true } });
   }
   return true; // Required for async response
