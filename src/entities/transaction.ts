@@ -32,29 +32,29 @@ function parseBalanceChange(str: string) {
 export function tryExtractTransactionInfo(
   node: Element,
   currentDate: string | null
-): TransactionRecord | null {
+): {transaction: TransactionRecord | null, skip?: true} {
   const operationDiv = getOperationNameElement(node);
   const operationDescriptionDiv = getOperationDescriptionElement(node);
   const operationBalanceChangeDiv = getBalanceChangeElement(node);
 
   if (!operationDiv) {
-    return null;
+    return {transaction: null};
   }
 
   if (!operationBalanceChangeDiv) {
-    return null;
+    return {transaction: null};
   }
 
   // Ignore rows where balance change has a descendant with negativeColor (e.g. negative amount styling)
   if (hasNegativeColorDescendant(operationBalanceChangeDiv)) {
-    return null;
+    return {transaction: null, skip: true};
   }
 
-  return {
+  return {transaction: {
     date: currentDate ?? "",
     operation: operationDiv.textContent,
     description: operationDescriptionDiv?.textContent || "",
     balanceChange: parseBalanceChange(operationBalanceChangeDiv.textContent),
     currency: parseCurrency(operationBalanceChangeDiv.textContent),
-  };
+  }};
 }

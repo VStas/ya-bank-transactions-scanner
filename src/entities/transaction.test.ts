@@ -104,8 +104,8 @@ describe("extractTransactionInfo", () => {
 
     const result = tryExtractTransactionInfo(mockNode, "3/1/2024");
 
-    expect(result?.balanceChange).toBe(-1234.56);
-    expect(result?.currency).toBe("RUB");
+    expect(result?.transaction?.balanceChange).toBe(-1234.56);
+    expect(result?.transaction?.currency).toBe("RUB");
   });
 
   it("parses balance with non-breaking space as thousand separator", () => {
@@ -116,7 +116,7 @@ describe("extractTransactionInfo", () => {
 
     const result = tryExtractTransactionInfo(mockNode, "3/1/2024");
 
-    expect(result?.balanceChange).toBe(1234.56);
+    expect(result?.transaction?.balanceChange).toBe(1234.56);
   });
 
   it("parses balance over a million with two non-breaking space separators", () => {
@@ -127,8 +127,8 @@ describe("extractTransactionInfo", () => {
 
     const result = tryExtractTransactionInfo(mockNode, "6/15/2024");
 
-    expect(result?.balanceChange).toBe(1234567.89);
-    expect(result?.currency).toBe("RUB");
+    expect(result?.transaction?.balanceChange).toBe(1234567.89);
+    expect(result?.transaction?.currency).toBe("RUB");
   });
 
   it("parses balance with unicode minus sign", () => {
@@ -139,7 +139,7 @@ describe("extractTransactionInfo", () => {
 
     const result = tryExtractTransactionInfo(mockNode, "4/10/2024");
 
-    expect(result?.balanceChange).toBe(-100);
+    expect(result?.transaction?.balanceChange).toBe(-100);
   });
 
   it("uses empty string for date when currentDate is null", () => {
@@ -151,7 +151,7 @@ describe("extractTransactionInfo", () => {
 
     const result = tryExtractTransactionInfo(mockNode, null);
 
-    expect(result?.date).toBe("");
+    expect(result?.transaction?.date).toBe("");
   });
 
   it("uses empty string for description when description element is null", () => {
@@ -163,7 +163,7 @@ describe("extractTransactionInfo", () => {
 
     const result = tryExtractTransactionInfo(mockNode, "5/5/2024");
 
-    expect(result?.description).toBe("");
+    expect(result?.transaction?.description).toBe("");
   });
 
   it("uses empty string for description when description has empty textContent", () => {
@@ -176,6 +176,6 @@ describe("extractTransactionInfo", () => {
 
     const result = tryExtractTransactionInfo(mockNode, "5/5/2024");
 
-    expect(result?.description).toBe("");
+    expect(result?.transaction?.description).toBe("");
   });
 });

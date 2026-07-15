@@ -65,19 +65,22 @@ export async function scan(): Promise<TransactionRecord[]> {
   state.resetState();
 
   try {
-    while (state.currentTransactionId < 500) {
+    while (state.currentTransactionId < 1500) {
       const row = await scanRowWithId(state.currentTransactionId, 300, 500);
       if (!row) break;
 
-      const info = tryExtractTransactionInfo(row, state.date);
-      if (info !== null) {
-        state.result.push(info);
-      } else {
-        const date = tryParseDate(row);
-        if (date !== null) {
-          state.date = date;
+      const {transaction: info, skip} = tryExtractTransactionInfo(row, state.date);
+      if (!skip) {
+        if (info !== null) {
+          state.result.push(info);
+        } else {
+          const date = tryParseDate(row);
+          if (date !== null) {
+            state.date = date;
+          }
         }
       }
+
 
       state.currentTransactionId += 1;
     }

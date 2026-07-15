@@ -48,6 +48,7 @@ export function parseCustomDate(dateStr: string) {
     }
 
     if (month === undefined) {
+      alert(`Unable to parse date: ${dateStr}`);
       return formatToMDYYYY(now);
     }
     return `${month}/${day}/${year}`;
